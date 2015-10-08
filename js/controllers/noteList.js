@@ -27,6 +27,8 @@
                 // reference the Notes table 
                 var note = db.getSchema().table('Note');
                 
+                console.log(id);
+                
                 db.delete()
                     .from(note)
                     .where(note.id.eq(id))
@@ -73,6 +75,7 @@
         }
         
         function goEditNote(id) {
+            console.log(id);
             $state.go('noteedit', { id: id });
         };
         

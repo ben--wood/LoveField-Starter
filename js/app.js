@@ -11,7 +11,7 @@ angular
         controller:'noteAddController as vm'
       })
       .state('noteedit', {
-        url: '/noteedit/:id',
+        url: '/noteedit/{id}',
         templateUrl: 'views/noteEdit.html',
         controller:'noteEditController as vm'
       })

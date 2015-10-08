@@ -29,6 +29,7 @@
                         .exec()
                         .then(
                             function() {
+                                console.log(vm.note);
                                 vm.noteEditForm.$setPristine();
                                 $state.go('notelist');
                             });	
@@ -37,6 +38,8 @@
         }
         
         $scope.$on('$ionicView.enter', function () {
+            
+            console.log($stateParams.id);
             
             dbService.getDb().then((function(db) {
              
