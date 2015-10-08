@@ -16,7 +16,12 @@
         ////////////
         
         function addNote() {
+            
+            console.log('add note 1');
+            
             if (vm.noteAddForm.$dirty === true && vm.noteAddForm.$valid === true) {
+                
+                console.log('add note 2');
                 
                 // get a database connection
                 dbService.getDb().then((function(db) {
@@ -28,6 +33,7 @@
                         'id': guid(),
                         'text': vm.note.text
                     });
+console.log('add note 3');
 
                     // https://github.com/google/lovefield/blob/master/docs/spec/04_query.md#42-insert-query-builder
                     db.insertOrReplace()
@@ -36,6 +42,7 @@
                         .exec()
                         .then(
                             function() {
+                                console.log('add note 4');
                                 vm.noteAddForm.$setPristine();
                                 $state.go('notelist');
                             });	

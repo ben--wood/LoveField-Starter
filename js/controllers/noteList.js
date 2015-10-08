@@ -21,20 +21,25 @@
         ////////////
         
         function deleteNote(id) {
+            
+            console.log(id);
+            console.log('delete note 1');
             // get a database connection
             dbService.getDb().then((function(db) {
                 
+            console.log('delete note 2');
                 // reference the Notes table 
                 var note = db.getSchema().table('Note');
                 
-                console.log(id);
+                console.log('delete note 3');
                 
                 db.delete()
                     .from(note)
                     .where(note.id.eq(id))
                     .exec()
                     .then(
-                        function() {                        
+                        function() {      
+                            console.log('delete note 4');                  
                             getNotes();
                         });	
             }));
