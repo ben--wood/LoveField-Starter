@@ -1,0 +1,18 @@
+<ion-view view-title="New Note">
+    <ion-content has-header="true" padding="true">
+        <form name="vm.noteAddForm" novalidate>
+            <div class="list">
+                <label class="item item-input">
+                    <textarea name="noteText" placeholder="new note" ng-model="vm.note.text" ng-maxlength="2000" required></textarea>
+                </label>
+                <div ng-if="vm.noteAddForm.$submitted !== undefined && vm.noteAddForm.$submitted === true && vm.noteAddForm.noteText.$invalid">
+                    <div class="item item-text-wrap assertive">
+                        <span ng-show="vm.noteAddForm.noteText.$error.required">Oops! Please enter some text for your note</span>
+                        <span ng-show="vm.noteAddForm.noteText.$error.maxlength">Oops! Your note cannot be longer than 2000 characters</span>
+                    </div>
+                </div>
+                <button type="submit" class="button button-full button-positive" ng-click="vm.addNote()">Submit</button>
+            </div>
+        </form>        
+    </ion-content>
+</ion-view>
