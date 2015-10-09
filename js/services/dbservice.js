@@ -118,7 +118,10 @@
       */
       function init() {        
        
-        var connectionOptions = { storeType: lf.schema.DataStoreType.WEB_SQL };
+        var connectionOptions = { storeType: lf.schema.DataStoreType.INDEXED_DB };
+        if (ionic.Platform.isIOS()) {
+              connectionOptions.storeType = lf.schema.DataStoreType.MEMORY;
+        }
             
         return buildSchema()
                   .connect(connectionOptions)
