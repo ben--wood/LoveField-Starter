@@ -1,3 +1,5 @@
+/* global lf */
+/* global ionic */
 /**
  * 
  */
@@ -16,7 +18,8 @@
       var _db = null;
     
       var service = {
-          getDb: getDb
+          getDb: getDb,
+          guid: guid
       };
 
       return service;
@@ -32,7 +35,21 @@
                   function() {
                     return _db;
                   });
-      };
+      }
+      
+      /**
+      * Creates a guid.
+      * @return {guid}     
+      * copy/pasted from http://stackoverflow.com/a/105074/2652910 - thank you
+      */
+      function guid() {
+        function s4() {
+            return Math.floor((1 + Math.random()) * 0x10000)
+                        .toString(16)
+                        .substring(1);
+         }
+         return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+      }
     
       /**
       * Builds the database schema.
@@ -63,7 +80,7 @@
             function(rows) {
               return rows.length > 0;
             });
-      };
+      }
       
       
       /**
@@ -87,11 +104,11 @@
               window.db = database;
               // if there is no data in the database populate it with some dummy data
               return checkForExistingData();
-            }).bind(this)).then((
+            }).bind(this)).then(( 
             function(dataExist) {
               return dataExist ? Promise.resolve() : insertData();
             }).bind(this));
-      };
+      }
       
       
       /**
@@ -118,7 +135,7 @@
               });
               return _db.insert().into(note).values(rows).exec();
             });
-      };
+      }
 
     }
 })();

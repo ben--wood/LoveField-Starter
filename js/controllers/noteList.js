@@ -21,68 +21,72 @@
         ////////////
         
         function deleteNote(id) {
-            
-            console.log(id);
-            console.log('delete note 1');
-            // get a database connection
-            dbService.getDb().then((function(db) {
-                
-            console.log('delete note 2');
-                // reference the Notes table 
-                var note = db.getSchema().table('Note');
-                
-                console.log('delete note 3');
-                
-                db.delete()
-                    .from(note)
-                    .where(note.id.eq(id))
-                    .exec()
-                    .then(
-                        function() {      
-                            console.log('delete note 4');                  
-                            getNotes();
-                        });	
-            }));
+            try 
+            {
+                // get a database connection
+                dbService.getDb().then((function(db) {
+                    
+                    // reference the Notes table 
+                    var note = db.getSchema().table('Note');
+                    
+                    db.delete()
+                        .from(note)
+                        .where(note.id.eq(id))
+                        .exec()
+                        .then(
+                            function() {      
+                                getNotes();
+                            });	
+                }));
+            } 
+            catch(err) {
+                console.log(err);    
+            }
         }
         
         function getNotes() {
-            // get a database connection
-            dbService.getDb().then((function(db) {
-                
-                // reference the Notes table 
-                var note = db.getSchema().table('Note');
-                
-                // get all incomplete Notes
-                // https://github.com/google/lovefield/blob/master/docs/spec/04_query.md#418-retrieval-of-query-results
-                vm.observeGetNotesQuery = db.select()
-                                            .from(note)
-                                            .exec()
-                                            .then(
-                                            function(rows) {                        
-                                                vm.notes = rows;                                                
-                                                $scope.$apply();
-                                            });	
-    
-    
-                // Observe the get notes select query
-                // whenever there is a change to the results of the above select the notelistChangeHandler function will get called
-                
-                //$log.debug(vm.observeGetNotesQuery, notelistChangeHandler);
-                
-                //db.observe(vm.observeGetNotesQuery, notelistChangeHandler);
+
+            try 
+            {
+                // get a database connection
+                dbService.getDb().then((function(db) {
                     
-            }));
+                    // reference the Notes table 
+                    var note = db.getSchema().table('Note');
+                    
+                    // get all incomplete Notes
+                    // https://github.com/google/lovefield/blob/master/docs/spec/04_query.md#418-retrieval-of-query-results
+                    vm.observeGetNotesQuery = db.select()
+                                                .from(note)
+                                                .exec()
+                                                .then(
+                                                function(rows) {                        
+                                                    vm.notes = rows;                                                
+                                                    $scope.$apply();
+                                                });	
+                
+                    // Observe the get notes select query
+                    // whenever there is a change to the results of the above select the notelistChangeHandler function will get called
+                    
+                    //$log.debug(vm.observeGetNotesQuery, notelistChangeHandler);
+                    
+                    //db.observe(vm.observeGetNotesQuery, notelistChangeHandler);
+                        
+                }));
+            } 
+            catch(err) {
+                console.log(err);    
+            }
         }
         
         function goAddNote() {
-            // NOTE: I guess I'm thick but I can't get ui-sref to work in the header
+            // NOTE: I'm thick and I can't get ui-sref to work in the header
             $state.go('noteadd');
         }
         
         function goEditNote(id) {
-            console.log(id);
             $state.go('noteedit', { id: id });
-        };
+        }
         
         function notelistChangeHandler(changes) {
             // whenever there is a             
