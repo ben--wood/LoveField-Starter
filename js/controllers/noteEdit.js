@@ -5,9 +5,9 @@
         .module('App')
         .controller('noteEditController', noteEditController);
 
-    noteEditController.$inject = ['$log', '$scope', '$state', '$stateParams', 'dbService'];
+    noteEditController.$inject = ['$log', '$scope', '$state', '$stateParams', 'dbService', 'TABLE'];
 
-    function noteEditController($log, $scope, $state, $stateParams, dbService) {
+    function noteEditController($log, $scope, $state, $stateParams, dbService, TABLE) {
         var vm = this;
         vm.note = {};
         
@@ -21,9 +21,9 @@
 
                 dbService.getDb().then((function(db) {
 
-                    var note = db.getSchema().table('Note');
+                    var note = db.getSchema().table(TABLE.Note);
 
-                    // https://github.com/google/lovefield/blob/master/docs/spec/04_query.md#43-update-query-builder
+                    // Update docs: https://github.com/google/lovefield/blob/master/docs/spec/04_query.md#43-update-query-builder
                     db.update(note)
                         .set(note.text, vm.note.text)
                         .where(note.id.eq(vm.note.id))
@@ -41,7 +41,7 @@
             
             dbService.getDb().then((function(db) {
              
-                var note = db.getSchema().table('Note');
+                var note = db.getSchema().table(TABLE.Note);
                 
                 db.select()
                     .from(note)

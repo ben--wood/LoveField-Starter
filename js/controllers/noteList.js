@@ -5,9 +5,9 @@
         .module('App')
         .controller('noteListController', noteListController);
 
-    noteListController.$inject = ['$log', '$scope', '$state', 'dbService'];
+    noteListController.$inject = ['$log', '$scope', '$state', 'dbService', 'TABLE'];
 
-    function noteListController($log, $scope, $state, dbService) {
+    function noteListController($log, $scope, $state, dbService, TABLE) {
         var vm = this;
         vm.notes = [];
         vm.observeGetNotesQuery = null;
@@ -21,27 +21,23 @@
         ////////////
         
         function deleteNote(id) {
-            try 
-            {
-                // get a database connection
-                dbService.getDb().then((function(db) {
-                    
-                    // reference the Notes table 
-                    var note = db.getSchema().table('Note');
-                    
-                    db.delete()
-                        .from(note)
-                        .where(note.id.eq(id))
-                        .exec()
-                        .then(
-                            function() {      
-                                getNotes();
-                            });	
-                }));
-            } 
-            catch(err) {
-                console.log(err);    
-            }
+        
+            // get a database connection
+            dbService.getDb().then((function(db) {
+                
+                // reference the Notes table 
+                var note = db.getSchema().table(TABLE.Note);
+                
+                // Delete docs: https://github.com/google/lovefield/blob/master/docs/spec/04_query.md#44-delete-query-builder
+                db.delete()
+                    .from(note)
+                    .where(note.id.eq(id))
+                    .exec()
+                    .then(
+                        function() {      
+                            getNotes();
+                        });	
+            }));            
         }
         
         function getNotes() {
@@ -52,10 +48,10 @@
                 dbService.getDb().then((function(db) {
                     
                     // reference the Notes table 
-                    var note = db.getSchema().table('Note');
+                    var note = db.getSchema().table(TABLE.Note);
                     
                     // get all incomplete Notes
-                    // https://github.com/google/lovefield/blob/master/docs/spec/04_query.md#418-retrieval-of-query-results
+                    // Select docs: https://github.com/google/lovefield/blob/master/docs/spec/04_query.md#418-retrieval-of-query-results
                     vm.observeGetNotesQuery = db.select()
                                                 .from(note)
                                                 .exec()
@@ -93,7 +89,27 @@
         }
 
         $scope.$on('$ionicView.enter', function () {
-            getNotes();
+            
+            // TODO: for the demo insert some initial data into the db 
+            dbService.getDb().then((function(db) {
+                  
+                  var note = db.getSchema().table(TABLE.Note);
+                  
+                  db.select()
+                        .from(note)
+                        .exec()
+                        .then(
+                              function(rows) {                  
+                                    if (rows.length === 0){
+                                          dbService.insertSeedData().then(
+                                            function() {
+                                                getNotes();        
+                                            });                        
+                                    } else {
+                                        getNotes();
+                                    }
+                              });
+            }));
         });
 
         $scope.$on('$destroy', function () {

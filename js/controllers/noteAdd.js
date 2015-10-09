@@ -5,9 +5,9 @@
         .module('App')
         .controller('noteAddController', noteAddController);
 
-    noteAddController.$inject = ['$log', '$state', 'dbService'];
+    noteAddController.$inject = ['$log', '$state', 'dbService', 'TABLE'];
 
-    function noteAddController($log, $state, dbService) {
+    function noteAddController($log, $state, dbService, TABLE) {
         var vm = this;
         vm.note = {};
         
@@ -23,14 +23,14 @@
                 dbService.getDb().then((function(db) {
                     
                     // reference the Notes table 
-                    var note = db.getSchema().table('Note');
+                    var note = db.getSchema().table(TABLE.Note);
 
                     var row = note.createRow({
                         'id': dbService.guid(),
                         'text': vm.note.text
                     });
 
-                    // https://github.com/google/lovefield/blob/master/docs/spec/04_query.md#42-insert-query-builder
+                    // Insert docs: https://github.com/google/lovefield/blob/master/docs/spec/04_query.md#42-insert-query-builder
                     db.insertOrReplace()
                         .into(note)
                         .values([row])
