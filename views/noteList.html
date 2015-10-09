@@ -1,7 +1,7 @@
 <ion-view view-title="Notes">
 
     <ion-nav-buttons side="left">
-        <button class="button button-icon icon ion-ios-minus-outline" ng-click="vm.showDelete = !vm.showDelete"></button>
+        <button class="button button-icon icon ion-ios-minus-outline" ng-click="vm.showDelete = !vm.showDelete" ng-show="vm.notes.length > 0"></button>
     </ion-nav-buttons>
     <ion-nav-buttons side="right">
         <button class="button icon-left ion-ios-plus-empty" ng-click="vm.goAddNote()">Note</button>

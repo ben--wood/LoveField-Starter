@@ -94,11 +94,13 @@
       */
       function buildSchema() {  
         var schemaBuilder = lf.schema.create('LoveField-Starter', 1);
-        schemaBuilder.createTable(TABLE.Note).
-            addColumn('id', lf.Type.STRING).
-            addColumn('text', lf.Type.STRING).
-            addPrimaryKey(['id']).
-            addIndex('idx_text', ['text']);
+        schemaBuilder
+            .createTable(TABLE.Note)
+            .addColumn('id', lf.Type.STRING)
+            .addColumn('text', lf.Type.STRING)
+            .addPrimaryKey(['id'])
+            .addIndex('idx_text', ['text']);  // primary key and index added just because I could - not for any specific reason!
+            
         return schemaBuilder;
       }
       
@@ -120,7 +122,10 @@
        
         var connectionOptions = { storeType: lf.schema.DataStoreType.INDEXED_DB };
         if (ionic.Platform.isIOS()) {
-              connectionOptions.storeType = lf.schema.DataStoreType.MEMORY;
+              // NOTE: I had a bit of trouble getting lf.schema.DataStoreType.WEB_SQL data store to work on an iOS device 
+              // it would work for the first database action but then fail silently for any subsequent attempts to select/insert/update/delete
+              // hence setting it to use an in Memory db
+              connectionOptions = { storeType: lf.schema.DataStoreType.MEMORY };
         }
             
         return buildSchema()
