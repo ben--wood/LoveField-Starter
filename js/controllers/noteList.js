@@ -22,9 +22,9 @@
       function deleteNote(id) {
         
         dbService.getDb().then(function(db) {
-              
+
           var note = db.getSchema().table(TABLE.Note);
-              
+
           // DELETE docs: https://github.com/google/lovefield/blob/master/docs/spec/04_query.md#44-delete-query-builder
           db.delete()
             .from(note)

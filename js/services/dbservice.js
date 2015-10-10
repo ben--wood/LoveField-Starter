@@ -31,7 +31,7 @@
       * Gets the db connection.
       * @return {!IThenable.<!lf.Database>}
       */
-      function getDb() {
+      function getDb() {         
         return init().then(
                   function() {
                     return db_;
@@ -121,7 +121,7 @@
       
       /**
       * Initializes a database connection.
-      * @return {!IThenable.<!lf.Database>}
+      * @return {!IThenable} - promise is resolved when db_ property has had a value assigned to it 
       * @private
       * 
       * NOTE: 2015/10/10
@@ -139,7 +139,7 @@
         var deferred = $q.defer();        
         
         if (db_ !== null) {
-          deferred.resolve(db_);
+          deferred.resolve();
         }
        
         var connectionOptions = { storeType: lf.schema.DataStoreType.INDEXED_DB };
@@ -154,7 +154,7 @@
               db_ = database;
               window.db = database;
               onConnected();
-              deferred.resolve(db_);                     
+              deferred.resolve();                     
             }));
                 
         return deferred.promise;   
