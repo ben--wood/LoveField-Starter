@@ -147,7 +147,7 @@
           connectionOptions = { storeType: lf.schema.DataStoreType.WEB_SQL };
         }
             
-        buildSchema()
+        return buildSchema()
           .connect(connectionOptions)
           .then((
             function(database) {
