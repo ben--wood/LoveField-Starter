@@ -130,7 +130,7 @@
       *       I found when debugging on an iOS device that LoveField chose the in memory (lf.schema.DataStoreType.MEMORY) store 
       *       which didn't work so well so here we ensure WebSql is used for iOS devices. 
       *       IndexedDb seemed to work ok on Android devices and desktop browsers. 
-      *       https://github.com/google/lovefield/blob/master/docs/spec/03_life_ofdb_.md#311-connect-options
+      *       https://github.com/google/lovefield/blob/master/docs/spec/03_life_of_db.md#311-connect-options
       *       https://cordova.apache.org/docs/en/5.1.1/cordova/storage/storage.html 
       *       http://caniuse.com/#feat=indexeddb
       *       https://github.com/google/lovefield/blob/master/docs/dd/02_data_store.md#25-websql-store      
@@ -144,7 +144,7 @@
        
         var connectionOptions = { storeType: lf.schema.DataStoreType.INDEXED_DB };
         if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
-          connectionOptions.storeType = lf.schema.DataStoreType.WEB_SQL;
+          connectionOptions = { storeType: lf.schema.DataStoreType.WEB_SQL };
         }
             
         return buildSchema()
