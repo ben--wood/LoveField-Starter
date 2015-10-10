@@ -9,6 +9,12 @@
 
     <ion-content has-header="true" padding="true">
 
+        <div class="card" ng-show="vm.notes.length === 0">
+            <div class="item item-text-wrap">
+                You have no notes.                
+            </div>
+        </div>
+
         <ion-list show-delete="vm.showDelete" can-swipe="true">
             <ion-item ng-repeat="note in vm.notes" class="item-text-wrap">                
                 <ion-delete-button class="ion-minus-circled" ng-click="vm.deleteNote(note.id)"></ion-delete-button>

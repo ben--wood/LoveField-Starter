@@ -1,27 +1,27 @@
 /**
- * This is ripped off from the LoveField Olympics demo here:
+ * This is inspired by/ripped off from various bits of LoveField demo code:
+ * https://github.com/googlesamples/io2015-codelabs/blob/master/lovefield/src/final/lovefield_service.js
  * https://github.com/google/lovefield/blob/master/demos/olympia_db/angular/demo.js
- * 
- * Slightly simplified so seed data is only inserted when you explicitly call the insertSeedData() function  
+ * Thank you!
  */
 
 (function () {
     'use strict';
 
     angular
-        .module('App')
-        .factory('dbService', dbService);
+      .module('App')
+      .factory('dbService', dbService);
 
-    dbService.$inject = ['$http', '$log', 'TABLE'];
+    dbService.$inject = ['$http', '$log', '$q', 'TABLE'];
 
-    function dbService($http, $log, TABLE) {
-
-      var _db = null;
+    function dbService($http, $log, $q, TABLE) {
+      var db_ = null;
     
       var service = {
-          getDb: getDb,
-          guid: guid,
-          insertSeedData: insertSeedData
+        checkForExistingData: checkForExistingData,
+        getDb: getDb,
+        guid: guid,
+        insertSeedData: insertSeedData
       };
 
       return service;
@@ -30,13 +30,29 @@
       
     
       /**
+      * Checks if any data exists in the DB.
+      * @return {boolean}
+      */
+      function checkForExistingData() {
+        getDb().then(function(db) {
+          var note = db.getSchema().table(TABLE.Note);        
+        
+          return db.select().from(note).exec().then(
+            function(rows) {
+              return rows.length > 0;
+            }
+          );
+        });
+      };
+
+      /**
       * Gets the db connection.
       * @return {!IThenable.<!lf.Database>}
       */
       function getDb() {
         return init().then(
                   function() {
-                    return _db;
+                    return db_;
                   });
       }
       
@@ -48,7 +64,7 @@
       */
       function guid() {
         function s4() {
-            return Math.floor((1 + Math.random()) * 0x10000)
+          return Math.floor((1 + Math.random()) * 0x10000)
                         .toString(16)
                         .substring(1);
          }
@@ -62,13 +78,13 @@
       */
       function insertSeedData() {
         $log.debug('Populating initial Note data');
-        var note = _db.getSchema().table(TABLE.Note);
+        var note = db_.getSchema().table(TABLE.Note);
         
         var url = "../js/data/notes.json";
         if (ionic.Platform.isAndroid()) {
-            url = "/android_asset/www/js/data/notes.json";
+          url = "/android_asset/www/js/data/notes.json";
         } else if (ionic.Platform.isIOS()) {
-            url = "js/data/notes.json";
+          url = "js/data/notes.json";
         }
         
         return $http.get(url).then(
@@ -77,7 +93,7 @@
                 return note.createRow(obj);
               });
               
-              return _db.insert()
+              return db_.insert()
                         .into(note)
                         .values(rows)
                         .exec();
@@ -94,13 +110,11 @@
       */
       function buildSchema() {  
         var schemaBuilder = lf.schema.create('LoveField-Starter', 1);
-        schemaBuilder
-            .createTable(TABLE.Note)
-            .addColumn('id', lf.Type.STRING)
-            .addColumn('text', lf.Type.STRING)
-            .addPrimaryKey(['id'])
-            .addIndex('idx_text', ['text']);  // primary key and index added just because I could - not for any specific reason!
-            
+        schemaBuilder.createTable(TABLE.Note).
+            addColumn('id', lf.Type.STRING).
+            addColumn('text', lf.Type.STRING).
+            addPrimaryKey(['id']).
+            addIndex('idx_text', ['text']);
         return schemaBuilder;
       }
       
@@ -110,33 +124,40 @@
       * @return {!IThenable.<!lf.Database>}
       * @private
       * 
-      * By default LoveField uses IndexedDb - I've changed it to use WebSql as WebSql works better with Cordova on Android and iOS
-      * https://cordova.apache.org/docs/en/5.1.1/cordova/storage/storage.html 
-      * http://caniuse.com/#feat=indexeddb
-      * https://github.com/google/lovefield/blob/master/docs/dd/02_data_store.md#25-websql-store
-      *  
-      * You can set various connection options including using Firebase as your data store:
-      * https://github.com/google/lovefield/blob/master/docs/spec/03_life_of_db.md#311-connect-options      
+      * NOTE: 2015/10/10
+      *       When no connection options are set LoveField does some feature detection to determine which backing store to use.
+      *       If the browser supports IndexedDb it uses that, then falls back to WebSql and finally to an "in memory" data store. 
+      *       I found when debugging on an iOS device that LoveField chose the in memory (lf.schema.DataStoreType.MEMORY) store 
+      *       which didn't work so well so here we ensure WebSql is used for iOS devices. 
+      *       IndexedDb seemed to work ok on Android devices and desktop browsers. 
+      *       https://github.com/google/lovefield/blob/master/docs/spec/03_life_ofdb_.md#311-connect-options
+      *       https://cordova.apache.org/docs/en/5.1.1/cordova/storage/storage.html 
+      *       http://caniuse.com/#feat=indexeddb
+      *       https://github.com/google/lovefield/blob/master/docs/dd/02_data_store.md#25-websql-store      
       */
       function init() {        
+        var deferred = $q.defer();        
+        
+        if (db_ !== null) {
+          deferred.resolve(db_);
+        }
        
         var connectionOptions = { storeType: lf.schema.DataStoreType.INDEXED_DB };
         if (ionic.Platform.isIOS()) {
-              // NOTE: I had a bit of trouble getting lf.schema.DataStoreType.WEB_SQL data store to work on an iOS device 
-              // it would work for the first database action but then fail silently for any subsequent attempts to select/insert/update/delete
-              // hence setting it to use an in Memory db
-              connectionOptions = { storeType: lf.schema.DataStoreType.MEMORY };
+              connectionOptions.storeType = lf.schema.DataStoreType.WEB_SQL;
         }
             
         return buildSchema()
                   .connect(connectionOptions)
                   .then((
                         function(database) {
-                              _db = database;
+                              db_ = database;
                               window.db = database;
                         
-                              Promise.resolve(_db);                        
+                              deferred.resolve(db_);                     
                         }));
+                        
+        return deferred.promise;   
       }
 
     }
