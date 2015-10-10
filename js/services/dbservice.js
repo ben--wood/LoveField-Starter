@@ -143,7 +143,7 @@
         }
        
         var connectionOptions = { storeType: lf.schema.DataStoreType.INDEXED_DB };
-        if (ionic.Platform.isIOS()) {
+        if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
           connectionOptions.storeType = lf.schema.DataStoreType.WEB_SQL;
         }
             
