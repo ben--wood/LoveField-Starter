@@ -29,7 +29,7 @@ angular
     $urlRouterProvider.otherwise("/notelist");
   })
   
-  .run(function($ionicPlatform, $rootScope, dbService, TABLE) {
+  .run(function($ionicPlatform) {
   
     $ionicPlatform.ready(function() {
       // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard for form inputs)
@@ -38,13 +38,6 @@ angular
       }
       if(window.StatusBar) {
         StatusBar.styleDefault();
-      }     
-
-      if (dbService.checkForExistingData() === true) {
-        dbService.insertSeedData().then(
-          function(){
-            $rootScope.$broadcast('lovefield-starter-event:seedDataInserted');
-          });      
       }
 
     });

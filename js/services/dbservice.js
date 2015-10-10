@@ -12,38 +12,20 @@
       .module('App')
       .factory('dbService', dbService);
 
-    dbService.$inject = ['$http', '$log', '$q', 'TABLE'];
+    dbService.$inject = ['$http', '$log', '$q', '$rootScope', 'TABLE'];
 
-    function dbService($http, $log, $q, TABLE) {
+    function dbService($http, $log, $q, $rootScope, TABLE) {
       var db_ = null;
     
       var service = {
-        checkForExistingData: checkForExistingData,
         getDb: getDb,
-        guid: guid,
-        insertSeedData: insertSeedData
+        guid: guid
       };
 
       return service;
 
       ////////////
-      
-    
-      /**
-      * Checks if any data exists in the DB.
-      * @return {boolean}
-      */
-      function checkForExistingData() {
-        getDb().then(function(db) {
-          var note = db.getSchema().table(TABLE.Note);        
-        
-          return db.select().from(note).exec().then(
-            function(rows) {
-              return rows.length > 0;
-            }
-          );
-        });
-      };
+
 
       /**
       * Gets the db connection.
@@ -73,6 +55,24 @@
     
     
       /**
+      * Checks if any data exists in the DB.
+      * @return {!IThenable.<!boolean>}
+      */
+      function checkForExistingData() {  
+        var deferred = $q.defer(); 
+              
+        var note = db_.getSchema().table(TABLE.Note);        
+      
+        db_.select().from(note).exec().then(
+          function(rows) {
+            deferred.resolve(rows.length > 0);
+          }
+        );
+        
+        return deferred.promise;
+      };
+    
+      /**
       * Inserts seed data into the DB.
       * @return {!angular.$q.Promise}      
       */
@@ -88,16 +88,16 @@
         }
         
         return $http.get(url).then(
-            function(response) {
-              var rows = response.data.map(function(obj) {
-                return note.createRow(obj);
-              });
-              
-              return db_.insert()
-                        .into(note)
-                        .values(rows)
-                        .exec();
+          function(response) {
+            var rows = response.data.map(function(obj) {
+              return note.createRow(obj);
             });
+            
+            return db_.insert()
+                      .into(note)
+                      .values(rows)
+                      .exec();
+          });
       }
 
     
@@ -111,10 +111,10 @@
       function buildSchema() {  
         var schemaBuilder = lf.schema.create('LoveField-Starter', 1);
         schemaBuilder.createTable(TABLE.Note).
-            addColumn('id', lf.Type.STRING).
-            addColumn('text', lf.Type.STRING).
-            addPrimaryKey(['id']).
-            addIndex('idx_text', ['text']);
+          addColumn('id', lf.Type.STRING).
+          addColumn('text', lf.Type.STRING).
+          addPrimaryKey(['id']).
+          addIndex('idx_text', ['text']);
         return schemaBuilder;
       }
       
@@ -144,20 +144,40 @@
        
         var connectionOptions = { storeType: lf.schema.DataStoreType.INDEXED_DB };
         if (ionic.Platform.isIOS()) {
-              connectionOptions.storeType = lf.schema.DataStoreType.WEB_SQL;
+          connectionOptions.storeType = lf.schema.DataStoreType.WEB_SQL;
         }
             
         return buildSchema()
-                  .connect(connectionOptions)
-                  .then((
-                        function(database) {
-                              db_ = database;
-                              window.db = database;
-                        
-                              deferred.resolve(db_);                     
-                        }));
-                        
+                .connect(connectionOptions)
+                .then((
+                  function(database) {
+                    db_ = database;
+                    window.db = database;
+                    onConnected();
+                    deferred.resolve(db_);                     
+                  }));
+                      
         return deferred.promise;   
+      }
+      
+      
+      /**
+      * Seeds the database with some dummy data if no data exists.
+      * @private
+      * TODO: this means there will never be 0 notes in the database so perhaps better moved into app.run?
+      */
+      function onConnected() {
+        checkForExistingData().then(
+          function(dataExists){            
+            if (dataExists === false) {
+              insertSeedData().then(
+                function(){
+                  $rootScope.$broadcast('lovefield-starter-event:seedDataInserted');
+                }
+              );  
+            }                 
+          }
+        );
       }
 
     }
