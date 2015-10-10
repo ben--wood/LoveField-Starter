@@ -7,7 +7,7 @@ angular
     Note: 'Note'
   })
     
-  .config(function($stateProvider, $urlRouterProvider) {
+  .config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
     
     $stateProvider      
       .state('noteadd', {
@@ -27,9 +27,9 @@ angular
       });
       
     $urlRouterProvider.otherwise("/notelist");
-  })
+  }])
   
-  .run(function($ionicPlatform) {
+  .run(['$ionicPlatform', function($ionicPlatform) {
   
     $ionicPlatform.ready(function() {
       // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard for form inputs)
@@ -41,4 +41,4 @@ angular
       }
 
     });
-  });
+  }]);
