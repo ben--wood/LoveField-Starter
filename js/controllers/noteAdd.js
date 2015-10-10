@@ -3,11 +3,11 @@
 
     angular
       .module('App')
-      .controller('noteAddController', noteAddController);
+      .controller('NoteAddController', NoteAddController);
 
-    noteAddController.$inject = ['$log', '$state', 'dbService', 'TABLE'];
+    NoteAddController.$inject = ['$log', '$state', 'dbService', 'TABLE'];
 
-    function noteAddController($log, $state, dbService, TABLE) {
+    function NoteAddController($log, $state, dbService, TABLE) {
       var vm = this;
       vm.note = {};
       

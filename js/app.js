@@ -13,17 +13,17 @@ angular
       .state('noteadd', {
         url: '/noteadd',
         templateUrl: 'views/noteAdd.html',
-        controller:'noteAddController as vm'
+        controller:'NoteAddController as vm'
       })
       .state('noteedit', {
         url: '/noteedit/{id}',
         templateUrl: 'views/noteEdit.html',
-        controller:'noteEditController as vm'
+        controller:'NoteEditController as vm'
       })
       .state('notelist', {
         url: '/notelist',
         templateUrl: 'views/noteList.html',
-        controller:'noteListController as vm'
+        controller:'NoteListController as vm'
       });
       
     $urlRouterProvider.otherwise("/notelist");

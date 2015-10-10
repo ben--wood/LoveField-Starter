@@ -70,7 +70,7 @@
         );
         
         return deferred.promise;
-      };
+      }
     
       /**
       * Inserts seed data into the DB.
@@ -147,16 +147,16 @@
           connectionOptions = { storeType: lf.schema.DataStoreType.WEB_SQL };
         }
             
-        return buildSchema()
-                .connect(connectionOptions)
-                .then((
-                  function(database) {
-                    db_ = database;
-                    window.db = database;
-                    onConnected();
-                    deferred.resolve(db_);                     
-                  }));
-                      
+        buildSchema()
+          .connect(connectionOptions)
+          .then((
+            function(database) {
+              db_ = database;
+              window.db = database;
+              onConnected();
+              deferred.resolve(db_);                     
+            }));
+                
         return deferred.promise;   
       }
       

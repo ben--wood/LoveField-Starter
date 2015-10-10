@@ -3,11 +3,11 @@
 
     angular
       .module('App')
-      .controller('noteListController', noteListController);
+      .controller('NoteListController', NoteListController);
 
-    noteListController.$inject = ['$log', '$scope', '$state', 'dbService', 'TABLE'];
+    NoteListController.$inject = ['$log', '$scope', '$state', 'dbService', 'TABLE'];
 
-    function noteListController($log, $scope, $state, dbService, TABLE) {
+    function NoteListController($log, $scope, $state, dbService, TABLE) {
       var vm = this;
       vm.notes = [];
       vm.showDelete = false;   
