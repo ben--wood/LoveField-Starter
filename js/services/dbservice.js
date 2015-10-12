@@ -22,8 +22,7 @@
         db_: db_,
         noteTable_: noteTable_,
          
-        connect: connect,
-        guid: guid
+        connect: connect
       };
 
       return service;
@@ -33,7 +32,7 @@
 
       /**
       * Initializes a database connection.
-      * @return {!IThenable} - promise is resolved when the db_ and noteTable_ properties have had values assigned to them 
+      * @return {!angular.$q.Promise} - promise is resolved when the db_ and noteTable_ properties have had values assigned to them 
       * 
       * NOTE: 2015/10/10
       *       When no connection options are set LoveField does some feature detection to determine which backing store to use.
@@ -70,23 +69,8 @@
       
     
       /**
-      * Creates a guid.
-      * @return {guid}     
-      * copy/pasted from http://stackoverflow.com/a/105074/2652910 - thank you
-      */
-      function guid() {
-        function s4() {
-          return Math.floor((1 + Math.random()) * 0x10000)
-                        .toString(16)
-                        .substring(1);
-         }
-         return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
-      }
-    
-    
-      /**
       * Checks if any data exists in the DB.
-      * @return {!IThenable.<!boolean>}
+      * @return {!angular.$q.Promise.<!boolean>}
       */
       function checkForExistingData() {  
         var deferred = $q.defer(); 
