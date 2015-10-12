@@ -2,12 +2,12 @@
     'use strict';
 
     angular
-      .module('App')
+      .module('app')
       .controller('NoteListController', NoteListController);
 
-    NoteListController.$inject = ['$log', '$scope', '$state', 'dbService', 'TABLE'];
+    NoteListController.$inject = ['$log', '$scope', '$state', 'noteService'];
 
-    function NoteListController($log, $scope, $state, dbService, TABLE) {
+    function NoteListController($log, $scope, $state, noteService) {
       var vm = this;
       vm.notes = [];
       vm.showDelete = false;   
@@ -19,43 +19,15 @@
       
       ////////////
       
-      function deleteNote(id) {
-        
-        dbService.getDb().then(function(db) {
-
-          var note = db.getSchema().table(TABLE.Note);
-
-          // DELETE docs: https://github.com/google/lovefield/blob/master/docs/spec/04_query.md#44-delete-query-builder
-          db.delete()
-            .from(note)
-            .where(note.id.eq(id))
-            .exec()
-            .then(
-                function() {      
-                    getNotes();
-                });	
+      function deleteNote(id) {        
+        noteService.remove(id).then(function() {      
+          getNotes();
         });            
       }
       
-      function getNotes() {
-      
-        dbService.getDb().then(function(db) {
-              
-          var note = db.getSchema().table(TABLE.Note);
-              
-          // SELECT docs: https://github.com/google/lovefield/blob/master/docs/spec/04_query.md#418-retrieval-of-query-results 
-          db.select()
-            .from(note)
-            .exec()
-            .then(
-            function(rows) {                        
-                vm.notes = rows;                                                
-                $scope.$apply();
-            });
-                  
-          // TODO: Observe the select query to save having to explicitly call getNotes() after an INSERT/UPDATE or DELETE docs: https://github.com/google/lovefield/blob/master/docs/spec/04_query.md#46-observers
-          // db.observe(selectQuery, handler);
-
+      function getNotes() {      
+        noteService.getAll().then(function(results) {              
+          vm.notes = results;
         });        
       }
       

@@ -2,12 +2,12 @@
     'use strict';
 
     angular
-      .module('App')
+      .module('app')
       .controller('NoteAddController', NoteAddController);
 
-    NoteAddController.$inject = ['$log', '$state', 'dbService', 'TABLE'];
+    NoteAddController.$inject = ['$log', '$state', 'noteService'];
 
-    function NoteAddController($log, $state, dbService, TABLE) {
+    function NoteAddController($log, $state, noteService) {
       var vm = this;
       vm.note = {};
       
@@ -15,31 +15,14 @@
       
       ////////////
       
-      function addNote() {
-          
-        if (vm.noteAddForm.$dirty === true && vm.noteAddForm.$valid === true) {
-            
-          dbService.getDb().then(function(db) {
-              
-            var note = db.getSchema().table(TABLE.Note);
-
-            var row = note.createRow({
-              'id': dbService.guid(),
-              'text': vm.note.text
-            });
-
-            // Insert docs: https://github.com/google/lovefield/blob/master/docs/spec/04_query.md#42-insert-query-builder
-            db.insertOrReplace()
-              .into(note)
-              .values([row])
-              .exec()
-              .then(
-                function() {
-                  vm.noteAddForm.$setPristine();
-                  $state.go('notelist');
-                });	
+      function addNote() {          
+        if (vm.noteAddForm.$dirty === true && vm.noteAddForm.$valid === true) {            
+          noteService.add(vm.note.text).then(function() {              
+            vm.noteAddForm.$setPristine();
+            $state.go('notelist');          
           });
         }
-      }       
+      }
+             
     }
 })();

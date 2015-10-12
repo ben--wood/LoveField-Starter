@@ -1,7 +1,7 @@
 'use strict';
 
 angular
-  .module('App', ['ionic'])
+  .module('app', ['ionic'])
   
   .constant('TABLE', {
     Note: 'Note'
