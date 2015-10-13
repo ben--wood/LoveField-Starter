@@ -38,7 +38,7 @@
       *       When no connection options are set LoveField does some feature detection to determine which backing store to use.
       *       If the browser supports IndexedDb it uses that, then falls back to WebSql and finally to an "in memory" data store.
       *       I found when debugging on an actual devices that LoveField chose the in memory (lf.schema.DataStoreType.MEMORY) store 
-      *       which didn't work so well so here we ensure WebSql is used for iOS and Android devices. 
+      *       on iOS which didn't work so well so here we ensure WebSql is used for iOS and Android devices. 
       *       IndexedDb seemed to work ok on desktop browsers. 
       *       https://github.com/google/lovefield/blob/master/docs/spec/03_life_of_db.md#311-connect-options
       *       https://cordova.apache.org/docs/en/5.1.1/cordova/storage/storage.html 

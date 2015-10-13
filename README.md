@@ -8,6 +8,8 @@ LoveField docs: https://google.github.io/lovefield/
 
 LoveField source: https://github.com/google/lovefield
 
+Ionic Market: http://market.ionic.io/starters/lovefield-starter
+
 ## Installation
 Download the zip file and move the contents to your www directory or use ionic start:
 ```
