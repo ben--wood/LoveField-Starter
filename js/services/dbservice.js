@@ -17,12 +17,14 @@
     function dbService($http, $log, $q, $rootScope, TABLE) {
       var db_ = null;
       var noteTable_ = null;
+      var isConnecting_ = false;
     
       var service = {
         db_: db_,
         noteTable_: noteTable_,
          
-        connect: connect
+        connect: connect,
+        initDatabase: initDatabase
       };
 
       return service;
@@ -45,25 +47,37 @@
       *       http://caniuse.com/#feat=indexeddb
       *       https://github.com/google/lovefield/blob/master/docs/dd/02_data_store.md#25-websql-store   
       */
-      function connect() {         
-        var deferred = $q.defer();        
-       
-        var connectionOptions = { storeType: lf.schema.DataStoreType.INDEXED_DB };
-        if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
-          connectionOptions = { storeType: lf.schema.DataStoreType.WEB_SQL };
+      function connect() {
+        var deferred = $q.defer();  
+        
+        console.info('connect() isConnecting_', isConnecting_);
+        
+        if (isConnecting_ === false) {         
+        
+          var connectionOptions = { storeType: lf.schema.DataStoreType.INDEXED_DB };
+          if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
+            connectionOptions = { storeType: lf.schema.DataStoreType.WEB_SQL };
+          }
+          
+          if (service.db_ === null) {
+            isConnecting_ = true;
+            buildSchema()
+              .connect(connectionOptions)
+              .then((
+                function(database) {
+                  isConnecting_ = false;
+                  service.db_ = database;
+                  service.noteTable_ = service.db_.getSchema().table(TABLE.Note);
+                  window.db = database;
+                  deferred.resolve();                     
+                }));
+          } else {
+            deferred.resolve();
+          }
+        } else {
+          deferred.reject('Still connecting to the database');
         }
-            
-        buildSchema()
-          .connect(connectionOptions)
-          .then((
-            function(database) {
-              service.db_ = database;
-              service.noteTable_ = service.db_.getSchema().table(TABLE.Note);
-              window.db = database;
-              onConnected();
-              deferred.resolve();                     
-            }));
-                
+        
         return deferred.promise; 
       }
       
@@ -91,7 +105,7 @@
       */
       function insertSeedData() {
         $log.debug('Populating initial Note data');
-        
+          
         var url = "../js/data/notes.json";
         if (ionic.Platform.isAndroid()) {
           url = "/android_asset/www/js/data/notes.json";
@@ -110,6 +124,7 @@
                       .values(rows)
                       .exec();
           });
+        
       }
 
     
@@ -132,22 +147,25 @@
       
       
       /**
-      * Seeds the database with some dummy data if no data exists.
+      * Connects to and seeds the database with some dummy data if no data exists.
       * @private
-      * TODO: this means there will never be 0 notes in the database so perhaps better moved into app.run?
       */
-      function onConnected() {
-        checkForExistingData().then(
-          function(dataExists){            
-            if (dataExists === false) {
-              insertSeedData().then(
-                function(){
-                  $rootScope.$broadcast('lovefield-starter-event:seedDataInserted');
-                }
-              );  
-            }                 
-          }
-        );
+      function initDatabase() {        
+        $log.debug('Attempt to connect to and seed the database');  
+        connect().then(function() {
+          $rootScope.$broadcast('lovefield-starter-event:dbConnected');
+          checkForExistingData().then(
+            function(dataExists){            
+              if (dataExists === false) {
+                insertSeedData().then(
+                  function(){                      
+                    $rootScope.$broadcast('lovefield-starter-event:seedDataInserted');
+                  }
+                );  
+              }                 
+            }
+          );    	
+        });        
       }
 
     }

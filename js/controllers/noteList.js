@@ -28,7 +28,7 @@
       function getNotes() {      
         noteService.getAll().then(function(results) {              
           vm.notes = results;
-        });        
+        });         
       }
       
       function goAddNote() {
@@ -40,6 +40,10 @@
       }
       
       $scope.$on('$ionicView.enter', function () {            
+        getNotes();            
+      });
+      
+      $scope.$on('lovefield-starter-event:dbConnected', function (event, message) {
         getNotes();            
       });
       

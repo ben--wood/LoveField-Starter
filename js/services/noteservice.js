@@ -98,6 +98,8 @@
             function(rows) {
               deferred.resolve(rows);
             });
+        }, function(reason) {
+          console.error('Failed: ', reason);
         });
                 
         return deferred.promise; 
